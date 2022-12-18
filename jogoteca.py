@@ -25,7 +25,8 @@ class Usuario:
 usuario1 = Usuario('Cleyton', 'CLS', 'admin')
 usuario2 = Usuario('Sophia', 'SFV', 'admin1')
 
-usuarios = [usuario1, usuario2]
+usuarios = {usuario1.nickname: usuario1,
+            usuario2.nickname: usuario2}
 
 app = Flask(__name__)
 app.secret_key = 'alura'
@@ -65,11 +66,13 @@ def login():
 
 @app.route('/autenticar', methods=['POST',])
 def autenticar():
-    if 'admin' == request.form['senha']:
-        session['usuario_logado'] = request.form['usuario']
-        flash(session['usuario_logado'] + ' logado com sucesso!')
-        proxima_pagina = request.form['proxima']
-        return redirect(proxima_pagina)
+    if request.form['usuario'] in usuarios:
+        usuario = usuarios[request.form['usuario']]
+        if request.form['senha'] == usuario.senha:
+            session['usuario_logado'] = usuario.nickname
+            flash(usuario.nickname + ' logado com sucesso!')
+            proxima_pagina = request.form['proxima']
+            return redirect(proxima_pagina)
     else:
         flash('Usuário não logado.')
         return redirect(url_for('login'))
